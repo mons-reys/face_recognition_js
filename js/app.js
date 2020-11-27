@@ -1,4 +1,5 @@
 const video = document.getElementById('video');
+let predictedAges = [];
 
 Promise.all([
     faceapi.nets.tinyFaceDetector.loadFromUri("/models"),
@@ -28,7 +29,8 @@ video.addEventListener('play',() =>{
         const detections = await faceapi
             .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
             .withFaceLandmarks()
-            .withFaceExpressions();
+            .withFaceExpressions()
+            .withAgeAndGender();
         const resizedDetections = faceapi.resizeResults(detections, displaySize);
 
         //clear canvas 
@@ -36,6 +38,30 @@ video.addEventListener('play',() =>{
         faceapi.draw.drawDetections(canvas, resizedDetections);
         faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
         faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
+
+        
+        //find the age 
+        const age = resizedDetections[0].age;
+        console.log(age);
+        const interpolatedAge = interpolatedAgePredictions(age);
+        console.log(interpolatedAge);
+        const bottomRight = {
+            x: resizedDetections[0].detection.box.bottomRight.x - 50,
+            y: resizedDetections[0].detection.box.bottomRight.y,
+        }
+
+        new faceapi.draw.DrawTextField(
+            [`${faceapi.utils.round(interpolatedAge, 0)} years`],
+            bottomRight
+        ).draw(canvas);
+        
+
+        //the median age in all frames
+        function interpolatedAgePredictions(age) {
+            predictedAges = [age].concat(predictedAges).slice(0, 30);
+            const avgPredictedAges =  predictedAges.reduce((total, a) => total + a) / predictedAges.length;
+            return avgPredictedAges;
+        }
 
     }, 100);
 
