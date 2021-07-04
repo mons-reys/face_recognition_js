@@ -9,4 +9,5 @@ this is an application of the FACE API js lib.
 
 all commits included!
 
-## FACE RECOGNITION WITH JAVASCRIPT 
+![face api test](https://user-images.githubusercontent.com/65210638/124383827-68834200-dcc6-11eb-9491-a6667d96efec.jpg)
+###                     simple test 
